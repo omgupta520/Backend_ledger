@@ -12,7 +12,7 @@ const app =express()
 app.use(express.json())
 app.use(cookieParser())
 
-// Routed USED
+// Routed USED  ---->for deployment server check
 app.get("/",(req,res)=>{
     res.send("Ledger Service is up and running")
 })
