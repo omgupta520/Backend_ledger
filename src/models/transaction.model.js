@@ -2,7 +2,7 @@ const mongoose =require("mongoose")
 
 
 const transactionSchema= new mongoose.Schema({
-    
+
     fromAccount:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"account",
@@ -23,10 +23,36 @@ const transactionSchema= new mongoose.Schema({
         },
         default:"PENDING"
     },
+    // what kind of money movement this was (used for the history screen)
+    kind:{
+        type:String,
+        enum:["TRANSFER","MERCHANT_PAYMENT","TOPUP","INITIAL_FUNDS"],
+        default:"TRANSFER"
+    },
     amount:{
         type:Number,
         required:[true,"Amount is required for creating a transaction"],
         min:[0,"Transaction amount cannot be negative "]
+    },
+    note:{
+        type:String,
+        trim:true,
+        maxlength:100
+    },
+    // set when the payment settled a merchant payment request
+    paymentRequest:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"paymentRequest"
+    },
+    // user who pressed "pay"
+    initiatedBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"user"
+    },
+    // a public-looking reference number shown on receipts, like a UTR / UPI ref no.
+    referenceId:{
+        type:String,
+        index:true
     },
     idempotencyKey: {
     type: String,

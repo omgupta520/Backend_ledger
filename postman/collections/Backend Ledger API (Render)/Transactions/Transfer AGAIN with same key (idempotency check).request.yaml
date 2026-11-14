@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/api/transactions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "fromAccount": "{{accountId}}",
+      "toAccount": "{{toAccountId}}",
+      "amount": 400,
+      "idempotencyKey": "{{idem}}"
+    }
+order: 3000

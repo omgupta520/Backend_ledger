@@ -10,6 +10,9 @@ const transactionController =require('../controllers/transaction.controller')
 
 transactionRoutes.post("/",authMiddleware.authMiddleware,transactionController.createTransaction)
 
+/* GET /api/transactions?accountId=   statement / history */
+transactionRoutes.get("/",authMiddleware.authMiddleware,transactionController.getHistory)
+
 /*post /api /transactions /system /initial-funds
 *Create initial fundstransaction from system user
 */ 

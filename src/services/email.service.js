@@ -54,11 +54,11 @@ async function sendTransactionEmail(userEmail, name, amount, toAccount) {
 
     const text = `Hello ${name},
 
-Your transaction of $${amount} to account ${toAccount} was successful.`;
+Your payment of ₹${amount} to ${toAccount} was successful.`;
 
     const html = `
         <p>Hello ${name},</p>
-        <p>Your transaction of $${amount} to account ${toAccount} was successful.</p>
+        <p>Your payment of ₹${amount} to ${toAccount} was successful.</p>
     `;
     await sendEmail(userEmail,subject,text,html);
 }

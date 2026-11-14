@@ -40,11 +40,15 @@ async function seedSystemUser() {
     if (!existingAccount) {
         const account = await accountModel.create({
             user: user._id,
+            type: "SYSTEM",
             status: "ACTIVE",
             currency: "INR"
         });
         console.log("System user bank account created:", account._id.toString());
     } else {
+        if (existingAccount.type !== "SYSTEM") {
+            await accountModel.updateOne({ _id: existingAccount._id }, { type: "SYSTEM" });
+        }
         console.log("System user bank account already exists:", existingAccount._id.toString());
     }
 

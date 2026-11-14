@@ -1,0 +1,19 @@
+$kind: http-request
+url: "{{baseUrl}}/api/transactions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "fromAccount": "{{accountId}}",
+      "toAccount": "{{toAccountId}}",
+      "amount": 400,
+      "idempotencyKey": "{{idem}}"
+    }
+scripts:
+  - type: beforeRequest
+    code: pm.collectionVariables.set('idem', 'xfer-' + Date.now());
+    language: text/javascript
+order: 2000

@@ -1,0 +1,23 @@
+$kind: http-request
+name: "System: fund an account"
+url: "{{baseUrl}}/api/transactions/system/initial-funds"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "toAccount": "{{accountId}}",
+      "amount": 1000,
+      "idempotencyKey": "{{idem}}"
+    }
+auth:
+  type: bearer
+  credentials:
+    token: "{{systemToken}}"
+scripts:
+  - type: beforeRequest
+    code: pm.collectionVariables.set('idem', 'fund-' + Date.now());
+    language: text/javascript
+order: 1000

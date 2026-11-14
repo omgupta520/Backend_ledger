@@ -1,0 +1,15 @@
+$kind: collection
+description: Live collection for the Backend Ledger service. Switch {{baseUrl}} between the Render URL and http://localhost:3000 to test either environment. Login/Register auto-save {{token}}; Create Account auto-saves {{accountId}}; transfer requests auto-generate a fresh {{idem}} idempotency key.
+variables:
+  baseUrl: https://backend-ledger-banktransactionsystem.onrender.com
+  token: ""
+  systemToken: ""
+  accountId: ""
+  toAccountId: ""
+  idem: ""
+auth:
+  - id: 3c872e9e-fab2-4ad5-89cc-87894b11acc4
+    type: bearer
+    name: bearer auth
+    credentials:
+      token: "{{token}}"

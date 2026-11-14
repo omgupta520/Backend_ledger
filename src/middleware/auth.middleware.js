@@ -29,6 +29,11 @@ async function authMiddleware(req, res, next) {
         );
 
         const user = await userModel.findById(decoded.userId);
+        if (!user) {
+            return res.status(401).json({
+                message: "Unauthorized access, user no longer exists"
+            });
+        }
 
         req.user = user;
 

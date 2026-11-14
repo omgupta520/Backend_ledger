@@ -27,6 +27,20 @@ const userSchema = new mongoose.Schema({
         default :false,
         immutable:true,
         select:false
+    },
+    // 4 or 6 digit payment PIN (like a UPI PIN), stored hashed
+    pinHash:{
+        type:String,
+        select:false
+    },
+    pinAttempts:{
+        type:Number,
+        default:0,
+        select:false
+    },
+    pinLockedUntil:{
+        type:Date,
+        select:false
     }
 
 }, {

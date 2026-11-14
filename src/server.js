@@ -5,7 +5,10 @@ const ConnectToDB=require("./config/db")
 
 ConnectToDB()
 
-app.listen(3000,()=>{
+// Render (and most hosts) assign the port at runtime via $PORT
+const PORT = process.env.PORT || 3000
 
-    console.log("server is runnning on port 3000")
+app.listen(PORT,()=>{
+
+    console.log(`server is runnning on port ${PORT}`)
 })

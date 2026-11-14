@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "system@ledger.internal",
+      "password": "system@123"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const r = pm.response.json();
+      if (r.token) pm.collectionVariables.set('systemToken', r.token);
+    language: text/javascript
+order: 3000

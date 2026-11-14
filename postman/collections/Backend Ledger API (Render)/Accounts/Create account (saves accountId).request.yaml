@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/api/accounts"
+method: POST
+scripts:
+  - type: afterResponse
+    code: |-
+      const r = pm.response.json();
+      if (r.account && r.account._id) pm.collectionVariables.set('accountId', r.account._id);
+    language: text/javascript
+order: 1000

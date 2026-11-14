@@ -1,0 +1,129 @@
+{
+  "info": {
+    "name": "Backend Ledger API (Render)",
+    "description": "Live collection for the Backend Ledger service. Switch {{baseUrl}} between the Render URL and http://localhost:3000 to test either environment. Login/Register auto-save {{token}}; Create Account auto-saves {{accountId}}; transfer requests auto-generate a fresh {{idem}} idempotency key.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "https://backend-ledger-banktransactionsystem.onrender.com" },
+    { "key": "token", "value": "" },
+    { "key": "systemToken", "value": "" },
+    { "key": "accountId", "value": "" },
+    { "key": "toAccountId", "value": "" },
+    { "key": "idem", "value": "" }
+  ],
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }] },
+  "item": [
+    {
+      "name": "0. Health check",
+      "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/" }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (saves token)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const r = pm.response.json();",
+            "if (r.token) pm.collectionVariables.set('token', r.token);",
+            "pm.test('201 created', () => pm.response.to.have.status(201));"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test.user.1@example.com\",\n  \"password\": \"Test@1234\"\n}" }
+          }
+        },
+        {
+          "name": "Login (saves token)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const r = pm.response.json();",
+            "if (r.token) pm.collectionVariables.set('token', r.token);",
+            "pm.test('200 ok', () => pm.response.to.have.status(200));"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"test.user.1@example.com\",\n  \"password\": \"Test@1234\"\n}" }
+          }
+        },
+        {
+          "name": "Login as SYSTEM user (saves systemToken)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const r = pm.response.json();",
+            "if (r.token) pm.collectionVariables.set('systemToken', r.token);"
+          ]}}],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"system@ledger.internal\",\n  \"password\": \"system@123\"\n}" }
+          }
+        },
+        {
+          "name": "Logout (blacklists the token)",
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/auth/logout" }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "Create account (saves accountId)",
+          "event": [{ "listen": "test", "script": { "exec": [
+            "const r = pm.response.json();",
+            "if (r.account && r.account._id) pm.collectionVariables.set('accountId', r.account._id);"
+          ]}}],
+          "request": { "method": "POST", "url": "{{baseUrl}}/api/accounts" }
+        },
+        { "name": "List my accounts", "request": { "method": "GET", "url": "{{baseUrl}}/api/accounts" } },
+        { "name": "Get balance", "request": { "method": "GET", "url": "{{baseUrl}}/api/accounts/balance/{{accountId}}" } }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "System: fund an account",
+          "event": [{ "listen": "prerequest", "script": { "exec": [
+            "pm.collectionVariables.set('idem', 'fund-' + Date.now());"
+          ]}}],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{systemToken}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/transactions/system/initial-funds",
+            "body": { "mode": "raw", "raw": "{\n  \"toAccount\": \"{{accountId}}\",\n  \"amount\": 1000,\n  \"idempotencyKey\": \"{{idem}}\"\n}" }
+          }
+        },
+        {
+          "name": "Transfer money",
+          "event": [{ "listen": "prerequest", "script": { "exec": [
+            "pm.collectionVariables.set('idem', 'xfer-' + Date.now());"
+          ]}}],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/transactions",
+            "body": { "mode": "raw", "raw": "{\n  \"fromAccount\": \"{{accountId}}\",\n  \"toAccount\": \"{{toAccountId}}\",\n  \"amount\": 400,\n  \"idempotencyKey\": \"{{idem}}\"\n}" }
+          }
+        },
+        {
+          "name": "Transfer AGAIN with same key (idempotency check)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/transactions",
+            "body": { "mode": "raw", "raw": "{\n  \"fromAccount\": \"{{accountId}}\",\n  \"toAccount\": \"{{toAccountId}}\",\n  \"amount\": 400,\n  \"idempotencyKey\": \"{{idem}}\"\n}" }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Test User",
+      "email": "test.user.1@example.com",
+      "password": "Test@1234"
+    }
+auth:
+  type: noauth
+scripts:
+  - type: afterResponse
+    code: |-
+      const r = pm.response.json();
+      if (r.token) pm.collectionVariables.set('token', r.token);
+      pm.test('201 created', () => pm.response.to.have.status(201));
+    language: text/javascript
+order: 1000
